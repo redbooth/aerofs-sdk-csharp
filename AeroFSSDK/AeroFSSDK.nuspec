@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>AeroFSSDK</id>
+    <version>1.0.0</version>
+    <title>AeroFSSDK</title>
+    <authors>Air Computing Inc.</authors>
+    <owners>Air Computing Inc.</owners>
+    <projectUrl>http://github.com/aerofs/AeroFSSDKCSharp</projectUrl>
+    <description>The AeroFS API SDK in C#.</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="7.0.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\AeroFSSDK.dll" target="lib\net35" />
+  </files>
+</package>
