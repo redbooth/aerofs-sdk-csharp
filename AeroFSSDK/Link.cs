@@ -25,9 +25,4 @@ namespace AeroFSSDK
         /// </remark>
         public long Expires { get; set; }
     }
-
-    public class Links
-    {
-        public IList<Link> URLs { get; set; }
-    }
 }
