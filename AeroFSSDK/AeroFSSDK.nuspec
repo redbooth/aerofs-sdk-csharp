@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>AeroFSSDK</id>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <title>AeroFSSDK</title>
     <authors>Air Computing Inc.</authors>
     <owners>Air Computing Inc.</owners>
