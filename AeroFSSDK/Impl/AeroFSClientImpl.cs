@@ -24,10 +24,12 @@ namespace AeroFSSDK.Impl
             {
                 Converters = new JsonConverter[]
                 {
+                    new StringIDReader<ObjectID>(),
                     new StringIDReader<FileID>(),
                     new StringIDReader<FolderID>(),
                     new StringIDReader<ShareID>(),
                     new StringIDReader<UploadID>(),
+                    new StringIDReader<LinkID>(),
                 },
                 ContractResolver = new DelegateContractResolver
                 {
@@ -41,10 +43,10 @@ namespace AeroFSSDK.Impl
                                 { "Name", "name" },
                                 { "Parent", "parent" },
                                 { "IsShared", "is_shared" },
-                                { "SID", "sid" },
+                                { "ShareID", "sid" },
                                 { "Path", "path" },
                                 { "Children", "children" },
-                            },
+                            }
                         } },
                         { typeof(File), new RemapPropertyNamesContractResolver
                         {
@@ -58,7 +60,27 @@ namespace AeroFSSDK.Impl
                                 { "MimeType", "mime_type" },
                                 { "ETag", "etag" },
                                 { "Path", "path" },
-                            },
+                            }
+                        } },
+                        { typeof(Link), new RemapPropertyNamesContractResolver
+                        {
+                            PropertyMapping = new Dictionary<string, string>
+                            {
+                                { "Key", "key" },
+                                { "ObjectID", "soid" },
+                                { "Token", "token" },
+                                { "CreatedBy", "created_by" },
+                                { "RequireLogin", "require_login" },
+                                { "HasPassword", "has_password" },
+                                { "Expires", "expires" },
+                            }
+                        } },
+                        { typeof(Links), new RemapPropertyNamesContractResolver
+                        {
+                            PropertyMapping = new Dictionary<string, string>
+                            {
+                                { "URLs", "urls" },
+                            }
                         } },
                     },
                 },
@@ -235,6 +257,96 @@ namespace AeroFSSDK.Impl
             }
 
             return ReadUploadProgressFromResponse(req);
+        }
+
+        public IList<Link> ListLinks(ShareID shareID)
+        {
+            var req = NewRequest("shares/{0}/urls".FormatWith(shareID));
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<Links>(req).URLs;
+        }
+
+        public Link GetLinkInfo(ShareID shareID, LinkID key)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}".FormatWith(shareID, key));
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public Link CreateLink(ObjectID soid, string password = null, bool? requireLogin = default(bool?), long? expires = default(long?))
+        {
+            var req = NewRequest("shares/{0}/urls".FormatWith(soid.ShareID));
+            req.Method = "POST";
+            req.ContentType = "application/json";
+
+            var body = new Dictionary<string, object> { { "soid", soid.Base } };
+            if (!password.IsNullOrEmpty()) { body["password"] = password; }
+            if (requireLogin.HasValue) { body["require_login"] = requireLogin.Value; }
+            if (expires.HasValue) { body["expires"] = expires.Value; }
+
+            WriteRequestBodyJson(req, body);
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public void DeleteLink(ShareID shareID, LinkID key)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}".FormatWith(shareID, key));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public Link UpdateLinkInfo(ShareID shareID, LinkID key, string password = null, bool? requireLogin = default(bool?), long? expires = default(long?))
+        {
+            var req = NewRequest("shares/{0}/urls/{1}".FormatWith(shareID, key));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+
+            var body = new Dictionary<string, object>();
+            if (!password.IsNullOrEmpty()) { body["password"] = password; }
+            if (requireLogin.HasValue) { body["require_login"] = requireLogin.Value; }
+            if (expires.HasValue) { body["expires"] = expires.Value; }
+
+            WriteRequestBodyJson(req, body);
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public Link UpdateLinkPassword(ShareID shareID, LinkID key, string password)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}/password".FormatWith(shareID, key));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, password);
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public Link RemoveLinkPassword(ShareID shareID, LinkID key)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}/password".FormatWith(shareID, key));
+            req.Method = "DELETE";
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public Link UpdateLinkRequireLogin(ShareID shareID, LinkID key, bool requireLogin)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}/require_login".FormatWith(shareID, key));
+            req.Method = requireLogin ? "PUT" : "DELETE";
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public Link UpdateLinkExpiry(ShareID shareID, LinkID key, long expiry)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}/expires".FormatWith(shareID, key));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, expiry);
+            return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public Link RemoveLinkExpiry(ShareID shareID, LinkID key)
+        {
+            var req = NewRequest("shares/{0}/urls/{1}/expires".FormatWith(shareID, key));
+            req.Method = "DELETE";
+            return ReadResponseBodyToEnd<Link>(req);
         }
 
         private HttpWebRequest NewRequest(string path)

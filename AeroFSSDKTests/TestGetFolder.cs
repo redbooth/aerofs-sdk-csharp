@@ -18,7 +18,7 @@ namespace AeroFSSDK.Tests
             Assert.AreEqual(name, folder.Name);
             Assert.AreEqual(parent, folder.Parent);
             Assert.AreEqual(false, folder.IsShared);
-            Assert.IsNull(folder.SID);
+            Assert.IsNull(folder.ShareID);
         }
 
         [TestMethod]

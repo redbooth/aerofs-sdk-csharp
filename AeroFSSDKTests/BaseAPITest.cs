@@ -17,7 +17,14 @@ namespace AeroFSSDK.Tests
         protected AeroFSAPI Client { get; set; }
 
         [TestInitialize]
-        public void SetupClient()
+        public void SetupTestBase()
+        {
+            SetupClient();
+            DeleteAllFiles();
+            DeleteAllLinks();
+        }
+
+        private void SetupClient()
         {
             Client = AeroFSClient.Create(new AeroFSClient.Configuration
             {
@@ -25,7 +32,10 @@ namespace AeroFSSDK.Tests
                 EndPoint = (string)Settings.Default["EndPoint"],
                 AccessToken = (string)Settings.Default["AccessToken"],
             });
+        }
 
+        private void DeleteAllFiles()
+        {
             var children = Client.ListRoot();
 
             foreach (var folder in children.Folders)
@@ -39,7 +49,19 @@ namespace AeroFSSDK.Tests
             }
         }
 
-        protected void ExpectError(HttpStatusCode expected, Action action)
+        private void DeleteAllLinks()
+        {
+            var shareID = Client.GetFolder(FolderID.Root).ID.ShareID;
+
+            Console.Out.WriteLine("shareID: " + shareID.Base);
+
+            foreach (var link in Client.ListLinks(shareID))
+            {
+                Client.DeleteLink(shareID, link.Key);
+            }
+        }
+
+        protected void ExpectError(HttpStatusCode statusCode, Action action)
         {
             try
             {
@@ -49,7 +71,7 @@ namespace AeroFSSDK.Tests
             catch (WebException e)
             {
                 Assert.IsInstanceOfType(e.Response, typeof(HttpWebResponse));
-                Assert.AreEqual(expected, (e.Response as HttpWebResponse).StatusCode);
+                Assert.AreEqual(statusCode, (e.Response as HttpWebResponse).StatusCode);
             }
         }
     }
