@@ -61,6 +61,12 @@ namespace AeroFSSDK.Tests
             }
         }
 
+        protected bool IsHttpError(WebException e, HttpStatusCode statusCode)
+        {
+            return e.Response is HttpWebResponse
+                && (e.Response as HttpWebResponse).StatusCode == statusCode;
+        }
+
         protected void ExpectError(HttpStatusCode statusCode, Action action)
         {
             try
@@ -70,8 +76,7 @@ namespace AeroFSSDK.Tests
             }
             catch (WebException e)
             {
-                Assert.IsInstanceOfType(e.Response, typeof(HttpWebResponse));
-                Assert.AreEqual(statusCode, (e.Response as HttpWebResponse).StatusCode);
+                Assert.IsTrue(IsHttpError(e, statusCode));
             }
         }
     }

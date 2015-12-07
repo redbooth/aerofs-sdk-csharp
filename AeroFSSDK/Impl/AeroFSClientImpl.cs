@@ -75,11 +75,13 @@ namespace AeroFSSDK.Impl
                                 { "Expires", "expires" },
                             }
                         } },
-                        { typeof(Links), new RemapPropertyNamesContractResolver
+                        { typeof(User), new RemapPropertyNamesContractResolver
                         {
                             PropertyMapping = new Dictionary<string, string>
                             {
-                                { "URLs", "urls" },
+                                { "Email", "email" },
+                                { "FirstName", "first_name" },
+                                { "LastName", "last_name" },
                             }
                         } },
                     },
@@ -263,7 +265,8 @@ namespace AeroFSSDK.Impl
         {
             var req = NewRequest("shares/{0}/urls".FormatWith(shareID));
             req.Method = "GET";
-            return ReadResponseBodyToEnd<Links>(req).URLs;
+            var links = ReadResponseBodyToEnd<IDictionary<string, IList<Link>>>(req);
+            return links["urls"];
         }
 
         public Link GetLinkInfo(ShareID shareID, LinkID key)
@@ -347,6 +350,13 @@ namespace AeroFSSDK.Impl
             var req = NewRequest("shares/{0}/urls/{1}/expires".FormatWith(shareID, key));
             req.Method = "DELETE";
             return ReadResponseBodyToEnd<Link>(req);
+        }
+
+        public User GetUserInfo(string email)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<User>(req);
         }
 
         private HttpWebRequest NewRequest(string path)

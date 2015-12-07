@@ -52,6 +52,7 @@
     <Compile Include="Impl\DelegateContractResolver.cs" />
     <Compile Include="Impl\StringIDReader.cs" />
     <Compile Include="Link.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ParentPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

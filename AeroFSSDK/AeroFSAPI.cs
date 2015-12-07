@@ -214,6 +214,13 @@ namespace AeroFSSDK
         /// <param name="key">The key of the given link.</param>
         /// <returns>The updated information on the given link.</returns>
         Link RemoveLinkExpiry(ShareID shareID, LinkID key);
+
+        /// <summary>
+        /// Retrieve information on an existing user.
+        /// </summary>
+        /// <param name="email">The email address of the inquired user.</param>
+        /// <returns>The inquired user information.</returns>
+        User GetUserInfo(string email);
     }
 
     /// <summary>
