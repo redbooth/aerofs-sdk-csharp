@@ -28,12 +28,24 @@ namespace AeroFSSDK
         }
     }
 
-    public class FileID : StringID { }
-    public class FolderID : StringID
+    public class ObjectID : StringID
+    {
+        // FIXME: while this hack technically works for special folders like root and approot,
+        //   it leaves a bad taste nevertheless
+        public ShareID ShareID
+        {
+            get { return new ShareID { Base = Base.Substring(0, 32) }; }
+        }
+    }
+
+    public class FileID : ObjectID { }
+
+    public class FolderID : ObjectID
     {
         public static FolderID Root { get; } = new FolderID { Base = "root" };
     }
 
     public class ShareID : StringID { }
     public class UploadID : StringID { }
+    public class LinkID : StringID { }
 }

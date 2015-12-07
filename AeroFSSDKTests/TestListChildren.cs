@@ -11,22 +11,22 @@ namespace AeroFSSDK.Tests
         [TestMethod]
         public void ShouldReturnListOfRootChildren()
         {
-            var files = new[]
+            var fileIDs = new[]
             {
                 Client.CreateFile(FolderID.Root, "file1"),
                 Client.CreateFile(FolderID.Root, "file2"),
                 Client.CreateFile(FolderID.Root, "file3"),
-            };
-            var folders = new[]
+            }.Select(file => file.ID).ToSet();
+            var folderIDs = new[]
             {
                 Client.CreateFolder(FolderID.Root, "folder1"),
                 Client.CreateFolder(FolderID.Root, "folder2"),
-            };
+            }.Select(folder => folder.ID).ToSet();
 
             var children = Client.ListRoot();
 
-            Assert.IsTrue(new HashSet<FileID>(files.Select(file => file.ID)).SetEquals(children.Files.Select(file => file.ID)));
-            Assert.IsTrue(new HashSet<FolderID>(folders.Select(folder => folder.ID)).SetEquals(children.Folders.Select(folder => folder.ID)));
+            Assert.IsTrue(fileIDs.SetEquals(children.Files.Select(file => file.ID)));
+            Assert.IsTrue(folderIDs.SetEquals(children.Folders.Select(folder => folder.ID)));
         }
 
         [TestMethod]

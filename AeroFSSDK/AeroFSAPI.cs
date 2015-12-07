@@ -10,6 +10,10 @@ namespace AeroFSSDK
     /// <summary>
     /// A specification of the AeroFS API accessible through an API client.
     /// </summary>
+    ///
+    /// <remarks>
+    /// All calls throw WebException on failures.
+    /// </remarks>
     public interface AeroFSAPI
     {
         /// <summary>
@@ -18,7 +22,6 @@ namespace AeroFSSDK
         /// <param name="folderID">The ID of the folder of interest.</param>
         /// <param name="fields">Additional on-demand fields to query.</param>
         /// <returns>A Folder object containing attributes of the folder of interest.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         Folder GetFolder(FolderID folderID, GetFolderFields fields = GetFolderFields.None);
 
         /// <summary>
@@ -33,7 +36,6 @@ namespace AeroFSSDK
         /// List the files and folders under the top-level root folder.
         /// </summary>
         /// <returns>A Children object containing a list of files and folders.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         Children ListRoot();
 
         /// <summary>
@@ -41,7 +43,6 @@ namespace AeroFSSDK
         /// </summary>
         /// <param name="folderID">The ID of the given folder.</param>
         /// <returns>A Children object containing a list of files and folders.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         Children ListChildren(FolderID folderID);
 
         /// <summary>
@@ -50,14 +51,12 @@ namespace AeroFSSDK
         /// <param name="parent">The ID of the parent folder.</param>
         /// <param name="name">The name of the newly created folder.</param>
         /// <returns>The newly created folder.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         Folder CreateFolder(FolderID parent, string name);
 
         /// <summary>
         /// Delete an existing folder.
         /// </summary>
         /// <param name="folderID">The ID of the folder to be deleted.</param>
-        /// <exception cref="WebException">If the request failed.</exception>
         void DeleteFolder(FolderID folderID);
 
         /// <summary>
@@ -66,14 +65,12 @@ namespace AeroFSSDK
         /// <param name="parent">The ID of the parent folder.</param>
         /// <param name="name">The name of the newly created file.</param>
         /// <returns>The newly created file.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         File CreateFile(FolderID parent, string name);
 
         /// <summary>
         /// Delete an existing file.
         /// </summary>
         /// <param name="fileID">The ID of the file to be deleted.</param>
-        /// <exception cref="WebException">If the request failed.</exception>
         void DeleteFile(FileID fileID);
 
         /// <summary>
@@ -82,7 +79,6 @@ namespace AeroFSSDK
         /// <param name="fileID">The ID of the file to be updated.</param>
         /// <param name="content">The stream containing the content to be uploaded.</param>
         /// <returns>The upload progress of the new upload sequence.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         UploadProgress StartUpload(FileID fileID, Stream content);
 
         /// <summary>
@@ -91,7 +87,6 @@ namespace AeroFSSDK
         /// <param name="fileID">The ID of the file to be updated.</param>
         /// <param name="uploadID">The ID of the upload sequence.</param>
         /// <returns>The upload progress of the existing upload sequence.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         UploadProgress ResumeUpload(FileID fileID, UploadID uploadID);
 
         /// <summary>
@@ -101,7 +96,6 @@ namespace AeroFSSDK
         /// <param name="progress">The current progress of this upload sequence.</param>
         /// <param name="content">The stream containing the content to be uploaded.</param>
         /// <returns>A new UploadProgress indicating the latest progress of this upload sequence.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         UploadProgress UploadContent(FileID fileID, UploadProgress progress, Stream content);
 
         /// <summary>
@@ -113,8 +107,113 @@ namespace AeroFSSDK
         /// <param name="fileID">The ID of the file to be updated.</param>
         /// <param name="progress">The upload progress of this upload sequence.</param>
         /// <returns>The new E-Tag for the file.</returns>
-        /// <exception cref="WebException">If the request failed.</exception>
         string FinishUpload(FileID fileID, UploadProgress progress);
+
+        /// <summary>
+        /// List all links in a shared folder.
+        /// </summary>
+        /// <param name="shareID">The ShareID of the shared folder.</param>
+        /// <returns>A list containing all links in the shared folder.</returns>
+        IList<Link> ListLinks(ShareID shareID);
+
+        /// <summary>
+        /// Get all information on a given link.
+        /// </summary>
+        /// <param name="shareID">The ShareID of the shared folder containing the link.</param>
+        /// <param name="key">The key of the inquired link.</param>
+        /// <returns>All informations on the inquired link.</returns>
+        Link GetLinkInfo(ShareID shareID, LinkID key);
+
+        /// <summary>
+        /// Create a link to a target file or folder.
+        /// </summary>
+        /// <param name="objectID">The ObjectID of the target file or folder.</param>
+        /// <param name="password">Optionally requiring a password to access the link.
+        ///     Empty string and null value are interpreted as no passwords.</param>
+        /// <param name="requireLogin">Optionally restricting link access to authenticated users.
+        ///     Null value is interpreted as leaving this to appliance default.</param>
+        /// <param name="expiry">Optionally sets an expiry in UTC.
+        ///     Null value is interpreted as the new link should not expire ever.</param>
+        /// <returns>The newly created link.</returns>
+        Link CreateLink(ObjectID objectID,
+            string password = null, bool? requireLogin = null, long? expiry = null);
+
+        /// <summary>
+        /// Delete an existing link.
+        /// </summary>
+        /// <param name="shareID">The ShareID of the given link's target.</param>
+        /// <param name="key">The key of the link to be deleted.</param>
+        void DeleteLink(ShareID shareID, LinkID key);
+
+        /// <summary>
+        /// Update information on a given link.
+        /// </summary>
+        /// <param name="shareID">The SharedID of the given link's target.</param>
+        /// <param name="key">The key of the given link.</param>
+        /// <param name="password">Optionally updating the setting to require a password to access the link.
+        ///     Empty string and null value are interpreted as do not update existing value.</param>
+        /// <param name="requireLogin">Optionally updating the setting to restrict link access to authenticated users.
+        ///     Null value is interpreted as do not update existing value.</param>
+        /// <param name="expiry">Optionally update the expiry of the link.
+        ///     Null value is interpreted as do not update existing value.</param>
+        /// <returns>The updated information on the given link.</returns>
+        /// <remarks>
+        /// This call is unable to achieve any of the following:
+        ///     - Remove the password associated with the link.
+        ///     - Remove the expiry of the link.
+        /// </remarks>
+        Link UpdateLinkInfo(ShareID shareID, LinkID key,
+            string password = null, bool? requireLogin = null, long? expiry = null);
+
+        /// <summary>
+        /// Update the password required to access a given link.
+        /// </summary>
+        /// <param name="shareID">The SharedID of the given link's target.</param>
+        /// <param name="key">The key of the given link.</param>
+        /// <param name="password">The new password for the link.</param>
+        /// <returns>The updated information on the given link.</returns>
+        /// <remarks>
+        /// This call is unable to remove the password for a link.
+        /// </remarks>
+        Link UpdateLinkPassword(ShareID shareID, LinkID key, string password);
+
+        /// <summary>
+        /// Remove requiring a password to access the given link.
+        /// </summary>
+        /// <param name="shareID">The ShareID of the given link's target.</param>
+        /// <param name="key">The key of the given link.</param>
+        /// <returns>The updated information on the given link.</returns>
+        Link RemoveLinkPassword(ShareID shareID, LinkID key);
+
+        /// <summary>
+        /// Update the setting to restrict link access to authenticated users for a given link.
+        /// </summary>
+        /// <param name="shareID">The SharedID of the given link's target.</param>
+        /// <param name="key">The key of the given link.</param>
+        /// <param name="requireLogin">Setting this value to true will restrict link access to authenticated users only.</param>
+        /// <returns>The updated information on the given link.</returns>
+        Link UpdateLinkRequireLogin(ShareID shareID, LinkID key, bool requireLogin);
+
+        /// <summary>
+        /// Update the expiry of a given link.
+        /// </summary>
+        /// <param name="shareID">The ShareID of the given link's target.</param>
+        /// <param name="key">The key of the given link.</param>
+        /// <param name="expiry">The new expiry, in UTC, for the given link.</param>
+        /// <remarks>
+        /// - This call is unable to remove the expiry for the given link.
+        /// - The Expires field in the response is unlikely to match the input expiry.
+        /// </remarks>
+        /// <returns>The updated information on the given link.</returns>
+        Link UpdateLinkExpiry(ShareID shareID, LinkID key, long expiry);
+
+        /// <summary>
+        /// Remove the expiry of a given link.
+        /// </summary>
+        /// <param name="shareID">The ShareID of the given link's target.</param>
+        /// <param name="key">The key of the given link.</param>
+        /// <returns>The updated information on the given link.</returns>
+        Link RemoveLinkExpiry(ShareID shareID, LinkID key);
     }
 
     /// <summary>

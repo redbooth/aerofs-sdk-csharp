@@ -7,7 +7,7 @@ namespace AeroFSSDK
 {
     public class Children
     {
-        public IEnumerable<Folder> Folders { get; set; }
-        public IEnumerable<File> Files { get; set; }
+        public IList<Folder> Folders { get; set; }
+        public IList<File> Files { get; set; }
     }
 }

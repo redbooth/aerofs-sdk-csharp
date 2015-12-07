@@ -6,7 +6,7 @@ using System.Text;
 namespace AeroFSSDK
 {
     /// <remarks>
-    /// If a folder is not shared, then IsShared will be false and SID will
+    /// If a folder is not shared, then IsShared will be false and ShareID will
     /// be null.
     ///
     /// Both Path and Children are on-demand fields and may be missing in some
@@ -18,7 +18,8 @@ namespace AeroFSSDK
         public string Name { get; set; }
         public FolderID Parent { get; set; }
         public bool IsShared { get; set; }
-        public ShareID SID { get; set; }
+        // FIXME: ShareID is overloaded as it can be extracted from ID in some cases
+        public ShareID ShareID { get; set; }
         public ParentPath Path { get; set; }
         public Children Children { get; set; }
     }
