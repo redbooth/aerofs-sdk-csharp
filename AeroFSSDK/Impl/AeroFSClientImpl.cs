@@ -156,6 +156,13 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<File>(req);
         }
 
+        public ParentPath GetFilePath(FileID fileID)
+        {
+            var req = NewRequest("files/{0}/path".FormatWith(fileID.Base));
+            req.Method = "GET";
+            return ParseFoldersFromResponse(req);
+        }
+
         public Folder GetFolder(FolderID folderID, GetFolderFields fields)
         {
             var queryFields = fields.Format("fields", GetFolderFieldsMap);
@@ -403,6 +410,17 @@ namespace AeroFSSDK.Impl
             if (!resp.Headers.AllKeys.Contains("Range")) return 0;
             string range = resp.Headers["Range"];
             return long.Parse(range.Substring(range.IndexOf('-') + 1).Trim()) + 1;
+        }
+
+        private ParentPath ParseFoldersFromResponse(HttpWebRequest req)
+        {
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            {
+                using (var reader = new StreamReader(resp.GetResponseStream()))
+                {
+                    return JsonConvert.DeserializeObject<ParentPath>(reader.ReadToEnd(), SerializerSettings);
+                }
+            }
         }
     }
 }

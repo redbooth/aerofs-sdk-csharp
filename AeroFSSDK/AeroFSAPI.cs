@@ -33,6 +33,13 @@ namespace AeroFSSDK
         File GetFile(FileID fileID, GetFileFields fields = GetFileFields.None);
 
         /// <summary>
+        /// Retrieve the path to a file of interest
+        /// </summary>
+        /// <param name="fileID">The ID of the file of interest</param>
+        /// <returns>A List of Folder objects representing the path to the file of interest.</returns>
+        ParentPath GetFilePath(FileID fileID);
+
+        /// <summary>
         /// List the files and folders under the top-level root folder.
         /// </summary>
         /// <returns>A Children object containing a list of files and folders.</returns>

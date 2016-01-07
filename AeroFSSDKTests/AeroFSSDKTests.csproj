@@ -82,6 +82,7 @@
     <Compile Include="TestLinkSharing.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="TestUsers.cs" />
+    <Compile Include="TestGetFilePath.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
