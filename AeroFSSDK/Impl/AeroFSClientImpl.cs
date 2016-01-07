@@ -11,95 +11,13 @@ using Newtonsoft.Json.Serialization;
 
 namespace AeroFSSDK.Impl
 {
-    internal class AeroFSClientImpl : AeroFSAPI
+    internal partial class AeroFSClientImpl : AeroFSAPI
     {
         public string EndPoint { get; set; }
         public string AccessToken { get; set; }
         public int UploadChunkSize { get; set; }
         // TODO: figure out a better way to set the upload buffer.
         public byte[] UploadBuffer { get; set; }
-
-        private JsonSerializerSettings SerializerSettings { get; } 
-            = new JsonSerializerSettings
-            {
-                Converters = new JsonConverter[]
-                {
-                    new StringIDReader<ObjectID>(),
-                    new StringIDReader<FileID>(),
-                    new StringIDReader<FolderID>(),
-                    new StringIDReader<ShareID>(),
-                    new StringIDReader<UploadID>(),
-                    new StringIDReader<LinkID>(),
-                },
-                ContractResolver = new DelegateContractResolver
-                {
-                    Resolvers = new Dictionary<Type, IContractResolver>
-                    {
-                        { typeof(Folder), new RemapPropertyNamesContractResolver
-                        {
-                            PropertyMapping = new Dictionary<string, string>
-                            {
-                                { "ID", "id" },
-                                { "Name", "name" },
-                                { "Parent", "parent" },
-                                { "IsShared", "is_shared" },
-                                { "ShareID", "sid" },
-                                { "Path", "path" },
-                                { "Children", "children" },
-                            }
-                        } },
-                        { typeof(File), new RemapPropertyNamesContractResolver
-                        {
-                            PropertyMapping = new Dictionary<string, string>
-                            {
-                                { "ID", "id" },
-                                { "Name", "name" },
-                                { "Parent", "parent" },
-                                { "LastModified", "last_modified" },
-                                { "Size", "size" },
-                                { "MimeType", "mime_type" },
-                                { "ETag", "etag" },
-                                { "Path", "path" },
-                            }
-                        } },
-                        { typeof(Link), new RemapPropertyNamesContractResolver
-                        {
-                            PropertyMapping = new Dictionary<string, string>
-                            {
-                                { "Key", "key" },
-                                { "ObjectID", "soid" },
-                                { "Token", "token" },
-                                { "CreatedBy", "created_by" },
-                                { "RequireLogin", "require_login" },
-                                { "HasPassword", "has_password" },
-                                { "Expires", "expires" },
-                            }
-                        } },
-                        { typeof(User), new RemapPropertyNamesContractResolver
-                        {
-                            PropertyMapping = new Dictionary<string, string>
-                            {
-                                { "Email", "email" },
-                                { "FirstName", "first_name" },
-                                { "LastName", "last_name" },
-                            }
-                        } },
-                    },
-                },
-            };
-
-        private IDictionary<GetFileFields, string> GetFileFieldsMap { get; }
-            = new Dictionary<GetFileFields, string>
-            {
-                { GetFileFields.Path, "path" },
-            };
-
-        private IDictionary<GetFolderFields, string> GetFolderFieldsMap { get; }
-            = new Dictionary<GetFolderFields, string>
-            {
-                { GetFolderFields.Path, "path" },
-                { GetFolderFields.Children, "children" },
-            };
 
         public File CreateFile(FolderID parent, string name)
         {
@@ -108,7 +26,7 @@ namespace AeroFSSDK.Impl
             req.ContentType = "application/json";
 
             WriteRequestBodyJson(req, new { parent = parent.Base, name = name });
-            return ReadResponseBodyToEnd<File>(req);
+            return ReadResponseBodyAndAssignETag<File>(req);
         }
 
         public Folder CreateFolder(FolderID parent, string name)
@@ -118,7 +36,7 @@ namespace AeroFSSDK.Impl
             req.ContentType = "application/json";
 
             WriteRequestBodyJson(req, new { parent = parent.Base, name = name });
-            return ReadResponseBodyToEnd<Folder>(req);
+            return ReadResponseBodyAndAssignETag<Folder>(req);
         }
 
         public void DeleteFile(FileID fileID)
@@ -133,6 +51,35 @@ namespace AeroFSSDK.Impl
             var req = NewRequest("folders/{0}".FormatWith(folderID.Base));
             req.Method = "DELETE";
             req.GetResponse().Close();
+        }
+
+        public void ShareFolder(FolderID folderID)
+        {
+            var req = NewRequest("folders/{0}/is_shared".FormatWith(folderID.Base));
+            req.Method = "PUT";
+            req.GetResponse().Close();
+        }
+
+        public Folder MoveFolder(FolderID folderID, FolderID parent = null, string name = null, IList<string> etags = null)
+        {
+            var req = NewRequest("folders/{0}".FormatWith(folderID.Base));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+
+            if (etags != null)
+            {
+                req.Headers["If-Match"] = CreateETagHeader(etags);
+            }
+
+            WriteRequestBodyJson(req, new { parent = parent.Base, name = name });
+            return ReadResponseBodyAndAssignETag<Folder>(req);
+        }
+
+        public Stream DownloadFile(FileID fileID)
+        {
+            var req = NewRequest("files/{0}/content".FormatWith(fileID.Base));
+            req.Method = "GET";
+            return req.GetResponse().GetResponseStream();
         }
 
         public string FinishUpload(FileID fileID, UploadProgress progress)
@@ -156,12 +103,34 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<File>(req);
         }
 
+        public ParentPath GetFilePath(FileID fileID)
+        {
+            var req = NewRequest("files/{0}/path".FormatWith(fileID.Base));
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<ParentPath>(req);
+        }
+
+        public File MoveFile(FileID fileID, FolderID parent, string name, IList<string> etags = null)
+        {
+            var req = NewRequest("files/{0}".FormatWith(fileID.Base));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+
+            if (etags != null)
+            {
+                req.Headers["If-Match"] = CreateETagHeader(etags);
+            }
+
+            WriteRequestBodyJson(req, new { parent = parent.Base, name = name });
+            return ReadResponseBodyAndAssignETag<File>(req);
+        }
+
         public Folder GetFolder(FolderID folderID, GetFolderFields fields)
         {
             var queryFields = fields.Format("fields", GetFolderFieldsMap);
             var req = NewRequest("folders/{0}{1}".FormatWith(folderID.Base, queryFields));
             req.Method = "GET";
-            return ReadResponseBodyToEnd<Folder>(req);
+            return ReadResponseBodyAndAssignETag<Folder>(req);
         }
 
         public Children ListChildren(FolderID folderID)
@@ -359,6 +328,207 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<User>(req);
         }
 
+        public User CreateUser(string email, string firstName, string lastName)
+        {
+            var req = NewRequest("users");
+            req.Method = "POST";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, new { email = email, first_name = firstName, last_name = lastName });
+            return ReadResponseBodyToEnd<User>(req);
+        }
+
+        public User UpdateUser(string email, string firstName, string lastName)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+
+            var body = new Dictionary<string, object>();
+            if (!firstName.IsNullOrEmpty()) { body["first_name"] = firstName; }
+            if (!lastName.IsNullOrEmpty()) { body["last_name"] = lastName; }
+
+            WriteRequestBodyJson(req, body);
+            return ReadResponseBodyToEnd<User>(req);
+        }
+
+        public UserPage ListUsers(int limit = 20, int after = -1, int before = -1)
+        {
+            var uri = "users?limit={0}".FormatWith(limit);
+
+            uri += (after == -1) ? "" : "&after={0}".FormatWith(after);
+            uri += (before == -1) ? "" : "&before={0}".FormatWith(before);
+
+            var req = NewRequest(uri);
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<UserPage>(req);
+        }
+
+        public void DeleteUser(string email)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public void ChangeUserPassword(string email, string password)
+        {
+            var req = NewRequest("users/{0}/password".FormatWith(email));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, password);
+            req.GetResponse().Close();
+        }
+
+        public void DisableUserPassword(string email)
+        {
+            var req = NewRequest("users/{0}/password".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public bool CheckUserTwoFactorAuthEnabled(string email)
+        {
+            var req = NewRequest("users/{0}/two_factor".FormatWith(email));
+            req.Method = "GET";
+            return ReadAnonymousObjectFromResponseBody(req, new { enforced = false }).enforced;
+        }
+
+        public void DisableUserTwoFactorAuth(string email)
+        {
+            var req = NewRequest("users/{0}/two_factor".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public Invitee GetInviteeInfo(string email)
+        {
+            var req = NewRequest("invitees/{0}".FormatWith(email));
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<Invitee>(req);
+        }
+
+        public Invitee CreateInvitation(string emailTo, string emailFrom)
+        {
+            var req = NewRequest("invitees");
+            req.Method = "POST";
+            req.ContentType = "application/json";
+            var invitation = new { email_to = emailTo, email_from = emailFrom };
+            WriteRequestBodyJson(req, invitation);
+            return ReadResponseBodyToEnd<Invitee>(req);
+        }
+
+        public void DeleteInvitation(string email)
+        {
+            var req = NewRequest("invitees/{0}".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public SharedFolderList ListSharedFolders(string email, IList<string> etags = null)
+        {
+            var req = NewRequest("users/{0}/shares".FormatWith(email));
+            if (etags != null)
+            {
+                req.Headers["If-None-Match"] = CreateETagHeader(etags);
+            }
+            req.Method = "GET";
+
+            // The response body for this call is just a JSON array
+            // So JsonConvert cannot automatically turn this into a SharedFolderList object
+            string etag;
+            var body = ReadResponseBodyAndReturnETag<IList<SharedFolder>>(req, out etag);
+
+            var ret = new SharedFolderList();
+            ret.ETag = etag;
+            ret.SharedFolders = body;
+            return ret;
+        }
+
+        public SharedFolder CreateSharedFolder(string name)
+        {
+            var req = NewRequest("shares");
+            req.Method = "POST";
+            req.ContentType = "application/json";
+            var sharedFolder = new { name = name };
+            WriteRequestBodyJson(req, sharedFolder);
+            return ReadResponseBodyAndAssignETag<SharedFolder>(req);
+        }
+
+        public SharedFolder GetSharedFolder(ShareID sharedFolderID, IList<string> etags = null)
+        {
+            var req = NewRequest("shares/{0}".FormatWith(sharedFolderID.Base));
+            if (etags != null)
+            {
+                req.Headers["If-None-Match"] = CreateETagHeader(etags);
+            }
+            req.Method = "GET";
+            return ReadResponseBodyAndAssignETag<SharedFolder>(req);
+        }
+
+        public SFMemberList ListSFMembers(ShareID sharedFolderID, IList<string> etags = null)
+        {
+            var req = NewRequest("shares/{0}/members".FormatWith(sharedFolderID.Base));
+            if(etags != null)
+            {
+                req.Headers["If-None_Match"] = CreateETagHeader(etags);
+            }
+            req.Method = "GET";
+
+            // The response body for this call is just a JSON array
+            // So JsonConvert cannot automatically turn this into a SharedFolderList object
+            string etag;
+            var body = ReadResponseBodyAndReturnETag<IList<SFMember>>(req, out etag);
+
+            var ret = new SFMemberList();
+            ret.ETag = etag;
+            ret.SFMembers = body;
+            return ret;
+        }
+
+        public SFMember GetSFMember(ShareID sharedFolderID, string email, IList<string> etags)
+        {
+            var req = NewRequest("shares/{0}/members/{1}".FormatWith(sharedFolderID.Base, email));
+            if (etags != null)
+            {
+                req.Headers["If-None-Match"] = CreateETagHeader(etags);
+            }
+            req.Method = "GET";
+            return ReadResponseBodyAndAssignETag<SFMember>(req);
+        }
+
+        public SFMember AddSFMemberToSharedFolder(ShareID sharedFolderID, string email, IList<Permission> permissions)
+        {
+            var req = NewRequest("shares/{0}/members".FormatWith(sharedFolderID.Base));
+            req.Method = "POST";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, new { email = email, permissions = GetPermissionStrings(permissions) });
+            return ReadResponseBodyToEnd<SFMember>(req);
+        }
+
+        public SFMember SetSFMemberPermissions(ShareID sharedFolderID, string email, IList<Permission> permissions, IList<string> etags = null)
+        {
+            var req = NewRequest("shares/{0}/members/{1}".FormatWith(sharedFolderID.Base, email));
+            if (etags != null)
+            {
+                req.Headers["If-Match"] = CreateETagHeader(etags);
+            }
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, new { permissions = GetPermissionStrings(permissions) });
+            return ReadResponseBodyAndAssignETag<SFMember>(req);
+        }
+
+        public void RemoveMemberFromSharedFolder(ShareID sharedFolderID, string email, IList<string> etags = null)
+        {
+            var req = NewRequest("shares/{0}/members/{1}".FormatWith(sharedFolderID.Base, email));
+            if(etags != null)
+            {
+                req.Headers["If-Match"] = CreateETagHeader(etags);
+            }
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
         private HttpWebRequest NewRequest(string path)
         {
             var req = (HttpWebRequest)WebRequest.Create("{0}/{1}".FormatWith(EndPoint, path));
@@ -374,6 +544,33 @@ namespace AeroFSSDK.Impl
             }
         }
 
+        private T ReadResponseBodyAndAssignETag<T>(HttpWebRequest req) where T : class, WithETag
+        {
+            string etag;
+            var body = ReadResponseBodyAndReturnETag<T>(req, out etag);
+            body.ETag = etag;
+            return body;
+        }
+
+        private T ReadResponseBodyAndReturnETag<T>(HttpWebRequest req, out string etag) where T : class
+        {
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            {
+                // ETag was provided in request and matched server-side, object not updated
+                if (resp.StatusCode == HttpStatusCode.NotModified)
+                {
+                    etag = null;
+                    return null;
+                }
+
+                using (var reader = new StreamReader(resp.GetResponseStream()))
+                {
+                    etag = resp.Headers["ETag"];
+                    return JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), SerializerSettings);
+                }
+            }
+        }
+
         private T ReadResponseBodyToEnd<T>(HttpWebRequest req)
         {
             using (var resp = req.GetResponse())
@@ -381,6 +578,17 @@ namespace AeroFSSDK.Impl
                 using (var reader = new StreamReader(resp.GetResponseStream()))
                 {
                     return JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), SerializerSettings);
+                }
+            }
+        }
+
+        private T ReadAnonymousObjectFromResponseBody<T>(HttpWebRequest req, T anonymousTypeObject)
+        {
+            using (var resp = req.GetResponse())
+            {
+                using (var reader = new StreamReader(resp.GetResponseStream()))
+                {
+                    return JsonConvert.DeserializeAnonymousType(reader.ReadToEnd(), anonymousTypeObject);
                 }
             }
         }
@@ -404,5 +612,28 @@ namespace AeroFSSDK.Impl
             string range = resp.Headers["Range"];
             return long.Parse(range.Substring(range.IndexOf('-') + 1).Trim()) + 1;
         }
+
+        private string CreateETagHeader(IList<string> etags)
+        {
+            return String.Join(", ", etags.ToArray());
+        }
+
+        private IList<string> GetPermissionStrings(IList<Permission> permissions)
+        {
+            return permissions.Select(p => p.ToString().ToUpper()).ToArray();
+        }
+
+        private IDictionary<GetFileFields, string> GetFileFieldsMap { get; }
+            = new Dictionary<GetFileFields, string>
+            {
+                { GetFileFields.Path, "path" },
+            };
+
+        private IDictionary<GetFolderFields, string> GetFolderFieldsMap { get; }
+            = new Dictionary<GetFolderFields, string>
+            {
+                { GetFolderFields.Path, "path" },
+                { GetFolderFields.Children, "children" },
+            };
     }
 }
