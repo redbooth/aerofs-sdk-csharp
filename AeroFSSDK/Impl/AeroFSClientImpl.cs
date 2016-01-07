@@ -135,6 +135,13 @@ namespace AeroFSSDK.Impl
             req.GetResponse().Close();
         }
 
+        public Stream DownloadFile(FileID fileID)
+        {
+            var req = NewRequest("files/{0}/content".FormatWith(fileID.Base));
+            req.Method = "GET";
+            return req.GetResponse().GetResponseStream();
+        }
+
         public string FinishUpload(FileID fileID, UploadProgress progress)
         {
             var req = NewRequest("files/{0}/content".FormatWith(fileID.Base));

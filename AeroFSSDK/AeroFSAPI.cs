@@ -106,6 +106,13 @@ namespace AeroFSSDK
         UploadProgress UploadContent(FileID fileID, UploadProgress progress, Stream content);
 
         /// <summary>
+        /// Download a file.
+        /// </summary>
+        /// <param name="fileID">The ID of the file to be downloaded.</param>
+        /// <returns>A Stream object containing the file's data.</returns>
+        Stream DownloadFile(FileID fileID);
+
+        /// <summary>
         /// Finish a upload sequence indicating the completion of the sequence.
         /// </summary>
         /// <remarks>

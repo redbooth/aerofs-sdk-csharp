@@ -83,6 +83,7 @@
     <Compile Include="TestUtils.cs" />
     <Compile Include="TestUsers.cs" />
     <Compile Include="TestGetFilePath.cs" />
+    <Compile Include="TestDownloadFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
