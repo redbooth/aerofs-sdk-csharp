@@ -43,21 +43,44 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AeroFSAPI.cs" />
+    <Compile Include="AeroFSAuthAPI.cs" />
+    <Compile Include="AeroFSAuthClient.cs" />
     <Compile Include="AeroFSClient.cs" />
-    <Compile Include="Children.cs" />
-    <Compile Include="File.cs" />
-    <Compile Include="Folder.cs" />
+    <Compile Include="Resource\Children.cs" />
+    <Compile Include="Resource\Device.cs" />
+    <Compile Include="Resource\DeviceList.cs" />
+    <Compile Include="Resource\DeviceStatus.cs" />
+    <Compile Include="Resource\File.cs" />
+    <Compile Include="Resource\Folder.cs" />
+    <Compile Include="Resource\Group.cs" />
+    <Compile Include="Resource\GroupList.cs" />
+    <Compile Include="Resource\GroupMember.cs" />
+    <Compile Include="Resource\GroupMemberList.cs" />
+    <Compile Include="Impl\AeroFSAuthClientImpl.cs" />
     <Compile Include="Impl\AeroFSClientImpl.cs" />
+    <Compile Include="Impl\ClientSerializerSettings.cs" />
     <Compile Include="Impl\RemapPropertyNamesContractResolver.cs" />
     <Compile Include="Impl\DelegateContractResolver.cs" />
+    <Compile Include="Resource\Invitation.cs" />
+    <Compile Include="Resource\InvitationList.cs" />
+    <Compile Include="Resource\SFGroupMemberList.cs" />
+    <Compile Include="Resource\SFMemberList.cs" />
+    <Compile Include="Resource\SFPendingMemberList.cs" />
+    <Compile Include="Resource\SharedFolderList.cs" />
     <Compile Include="Impl\StringIDReader.cs" />
+    <Compile Include="Resource\Invitee.cs" />
     <Compile Include="Link.cs" />
-    <Compile Include="User.cs" />
+    <Compile Include="Resource\SFGroupMember.cs" />
+    <Compile Include="Resource\SFMember.cs" />
+    <Compile Include="Resource\SFPendingMember.cs" />
+    <Compile Include="Resource\SharedFolder.cs" />
+    <Compile Include="Resource\User.cs" />
+    <Compile Include="Resource\UserPage.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="ParentPath.cs" />
+    <Compile Include="Resource\ParentPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringID.cs" />
-    <Compile Include="UploadProgress.cs" />
+    <Compile Include="Resource\StringID.cs" />
+    <Compile Include="Resource\UploadProgress.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".nuget\" />

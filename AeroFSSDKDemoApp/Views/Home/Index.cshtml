@@ -1,0 +1,58 @@
+﻿@model AeroFSSDKDemoApp.Models.HomeModel
+@{
+    ViewBag.Title = "Index";
+}
+
+<section>
+    <h2>Your Files and Folders</h2>
+    <div class="demo-file-pane">
+        <ul class="breadcrumb">
+            @if (Model.Path != null)
+            {
+                foreach (var folder in Model.Path.Folders)
+                {
+                    <li><a href="~/Home/Index/@folder.ID">@folder.Name</a></li>
+                }
+            }
+            <li class="active">@Model.CurFolder.Name</li>
+
+        </ul>
+        <div class="demo-container">
+            <table class="demo-table">
+                <tr class="demo-row">
+                    <th class="demo-col">Type</th>
+                    <th class="demo-col">File Name</th>
+                </tr>
+            @if (Model.Folders != null)
+            {
+                foreach (var folder in Model.Folders)
+                {
+                        <tr class="demo-row">
+                            <td class="demo-col">
+                                <img src="~/Assets/folder-2x.png">
+                            </td>
+                            <td class="demo-col">
+                                <div class="demo-file-name"><a href="~/Home/Index/@folder.ID">@folder.Name</a></div>
+                            </td>
+                        </tr>
+                }
+            }
+            @if (Model.Files != null)
+            {
+                foreach (var file in Model.Files)
+                {
+                        <tr class="demo-row">
+                            <td class="demo-col">
+                                <img src="~/Assets/file-2x.png">
+                            </td>
+                            <td class="demo-col">
+                                <div class="demo-file-name"><a href="#">@file.Name</a></div>
+                            </td>
+                        </tr>
+                }
+            }
+            </table>
+        </div>
+    </div>
+    
+</section>

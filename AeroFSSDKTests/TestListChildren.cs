@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestListChildren : BaseAPITest
+    public class TestListChildren : BaseFileTest
     {
         [TestMethod]
         public void ShouldReturnListOfRootChildren()
