@@ -7,7 +7,6 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using AeroFSSDK.Impl;
-using AeroFSSDK.Tests.Properties;
 
 namespace AeroFSSDK.Tests
 {
@@ -15,37 +14,22 @@ namespace AeroFSSDK.Tests
     public class BaseAPITest : BaseTest
     {
         protected AeroFSAPI Client { get; set; }
+        protected AeroFSAPI OrgAdminClient { get; set; }
 
         [TestInitialize]
-        public void SetupTestBase()
+        public void SetupClients()
         {
-            SetupClient();
-            DeleteAllFiles();
-        }
-
-        private void SetupClient()
-        {
-            Client = AeroFSClient.Create(new AeroFSClient.Configuration
+            Client = AeroFSClient.Create(Settings.AccessToken, new AeroFSClient.Configuration
             {
-                // read these values from app.config
-                EndPoint = (string)Settings.Default["EndPoint"],
-                AccessToken = (string)Settings.Default["AccessToken"],
+                HostName = Settings.HostName,
+                APIVersion = Settings.APIVersion
             });
-        }
 
-        private void DeleteAllFiles()
-        {
-            var children = Client.ListRoot();
-
-            foreach (var folder in children.Folders)
+            OrgAdminClient = AeroFSClient.Create(Settings.OrgAdminAccessToken, new AeroFSClient.Configuration
             {
-                Client.DeleteFolder(folder.ID);
-            }
-
-            foreach (var file in children.Files)
-            {
-                Client.DeleteFile(file.ID);
-            }
+                HostName = Settings.HostName,
+                APIVersion = Settings.APIVersion
+            });
         }
 
         protected bool IsHttpError(WebException e, HttpStatusCode statusCode)

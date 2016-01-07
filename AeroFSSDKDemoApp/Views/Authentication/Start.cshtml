@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewBag.Title = "Start";
+}
+
+<section>
+    <h2>Authenticate via AeroFS appliance</h2>
+    <p>Before you can view your files and folders, you need to authenticate your AeroFS account.</p>
+    <p>Click on the button below to be redirected to the AeroFS Appliance.</p>
+    @if (ViewBag.HasError)
+    {
+        <p class="error">@ViewBag.ErrorMessage</p>
+    }
+    @{
+        if (!ViewBag.Authenticated)
+        {
+            <p><a class="btn btn-default" href="@ViewBag.AuthUrl">Authenticate &raquo;</a></p>
+        }
+        else
+        {
+            <p>You're already authenticated! Click <a href="~/Home/Index">here</a> to view your AeroFS home directory.</p>
+        }
+    }
+</section>
+

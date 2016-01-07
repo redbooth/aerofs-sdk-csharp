@@ -1,11 +1,12 @@
 # AeroFS SDK in CSharp
 This project aims to be the C\# SDK for [AeroFS
-API](https://www.aerofs.com/docs/api/).
+API](https://developers.aerofs.com/api).
 
 ## What are these files?
-This directory contains 2 projects:
+This directory contains 3 projects:
 
 - AeroFSSDK: an API specification and a client implementation.
+- AeroFSSDKDemoApp: A simple .NET MVC project as an example for how to use the SDK.
 - AeroFSSDKTests: a test suite of system tests to run against an API endpoint.
 
 ## How to build?
@@ -46,21 +47,25 @@ This directory contains 2 projects:
     Clean and rebuild the solution.
 
 ## How to run system tests?
-- Run an AeroFS appliance.
-- Obtain an access token to an user account. This can be done either via the
+- Run an AeroFS appliance. **NOTE: It is _highly_ recommended that this appliance be a test appliance, because the user's files will be deleted and some of the tests require Organization Administrator privileges.**
+- Obtain an access token to a user account. This can be done either via the
   [Authentication
-  Workflow](https://www.aerofs.com/docs/api/en/1.2/#overview_authentication) or
+  Workflow](https://developers.aerofs.com/api/en/1.3/#overview_authentication) or
   an user can create an auth token under personal Settings on the appliance's
   website.
+- Obtain an access token with `org.admin` scope. See [OAuth Scopes](https://developers.aerofs.com/api/en/1.3/#oauth_scopes) for more information. The token generated in the previous step will not suffice, as it will not have the required scope. The tests in `AeroFSSDKTests/TestOAuth.cs` provide examples for how this can be done.
 - Run an AeroFS client associated with the user account that created the access
-  token and connecting to the appliance above.
-- Note that the system tests will delete all files belonging to this user, so I
-  suggest using a test account instead of an actual user account.
-- Determine the API endpoint. e.g. `https://share.aerofs.com/api/v1.2/`.
-- Edit `AeroFSSDKTests/app.config` and:
-  - Put the URL to the end point in the `<value>` tag under EndPoint.
-  - Put the access token in the `<value>` tag under AccessToken.
-  - Note that these values should not be disclosed nor committed as they
+  token and connect to the appliance above.
+- **NOTE: as mentioned above, tests will delete all of a user's files. If you are not using a test appliance as recommended above, you should _at least_ use a test user account + client. You will still be unable to run tests requiring `org.admin` scope, unless you use an administrator account.**
+- Determine the Host Name. e.g. `https://share.aerofs.com`.
+- And the API Version you wish to target. e.g. `1.3`.
+- Edit `AeroFSSDKTests/Settings.cs` and:
+  - Put the Host Name (including `https://`) as the value for the HostName field.
+  - Put the API Version as the value for the APIVersion field.
+  - Put the access token as the value for the AccessToken field.
+  - Put the organization admin access token as the value for the OrgAdminAccessToken field.
+  - Put in any values (e.g. `test`) for the OAuth test fields (ClientID, ClientSecret, RedirectUri), unless you would like to use those tests to manually examine the OAuth flow, in which case you must configure and provide valid ClientID, ClientSecret and RedirectUri values that have been registered with the appliance.
+  - Note that these values should not be disclosed or committed as they
     grant access to files stored on the user's AeroFS client.
 - In Visual Studio, go to top menu -> Test -> Windows -> Test Explorer. When
   the Test Explorer opens, it should scan and pick up all system tests.
@@ -68,7 +73,7 @@ This directory contains 2 projects:
 
 ### Common problems
 - NullReferenceException or ArgumentException with creating client.
-  - The EndPoint and AccessToken are not set in `app.config`. See the above
+  - The HostName and/or AccessToken are not set in `Settings.cs`. See the above
     instruction related to editing `app.config`.
 - Tests fail with 503 Service Unavailable.
   - Either AeroFS client or the appliance is not running. Start both the
@@ -97,13 +102,13 @@ This directory contains 2 projects:
       certificate on the machine running the API client.
 - All of my files on my AeroFS client have disappeared.
   - You've been warned above that system tests will delete all files on the
-    targetted client. You can recover the files using [Sync
+    targetted client. You might be able to recover the files using [Sync
     History](https://support.aerofs.com/hc/en-us/articles/201439394-Sync-History).
 - I've accidentally committed and published my API endpoint and access token,
   and now the Internet is stealing all my files. Halp!
   - The access token is compromised and the Internet does not forget.
     Nevertheless, you should take the following actions:
-    - Revoke the offending access token on `appliance_url/apps`.
+    - Revoke the offending access token on the appliance at `appliance_url/apps`.
     - Remove the offending commit from git.
     - Recover your lost files, if any, via Sync History.
 

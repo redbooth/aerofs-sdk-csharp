@@ -23,14 +23,14 @@ namespace AeroFSSDK
         ///             AccessToken = "00000000000000000000000000000000",
         ///         });
         /// </example>
-        public static AeroFSAPI Create(Configuration config)
+        public static AeroFSAPI Create(string accessToken, Configuration config)
         {
+            if (accessToken.IsNullOrEmpty()) throw new ArgumentNullException("accessToken cannot be null or empty.");
             config.ValidateConfiguration();
-
             return new Impl.AeroFSClientImpl
             {
                 EndPoint = config.EndPoint,
-                AccessToken = config.AccessToken,
+                AccessToken = accessToken,
                 UploadChunkSize = config.UploadChunkSize,
                 // TODO: figure out a better way to provision this
                 UploadBuffer = new byte[config.UploadChunkSize],
@@ -48,15 +48,16 @@ namespace AeroFSSDK
             public const int DefaultChunkSize = 4096;
 
             /// <summary>
-            /// The URI of the AeroFS API endpoint.
+            /// The host name of the target AeroFS Appliance.
             /// </summary>
-            /// <example>"https://share.aerofs.com/api/v1.2"</example>
-            public string EndPoint { get; set; }
+            /// <example>"https://share.aerofs.com"</example>
+            public string HostName { get; set; }
 
             /// <summary>
-            /// The access token to use to authenticate the client to the API endpoint.
+            /// The version of the API to use.
             /// </summary>
-            public string AccessToken { get; set; }
+            /// <example>"1.2"</example>
+            public string APIVersion { get; set; }
 
             /// <summary>
             /// The maximum number of bytes to upload per request when uploading file content.
@@ -65,13 +66,23 @@ namespace AeroFSSDK
                 = DefaultChunkSize;
 
             /// <summary>
+            /// The Uri of the AeroFS API endpoint, constructed from HostName and APIVersion.
+            /// </summary>
+            public string EndPoint
+            {
+                get
+                {
+                    return HostName + "/api/v" + APIVersion;
+                }
+            }
+
+            /// <summary>
             /// Validate the values in this configuration.
             /// </summary>
             /// <exception cref="ArgumentException">If there are any invalid values.</exception>
             public void ValidateConfiguration()
             {
                 if (EndPoint.IsNullOrEmpty()) throw new ArgumentNullException("EndPoint cannot be null or empty.");
-                if (AccessToken.IsNullOrEmpty()) throw new ArgumentNullException("AccessToken cannot be null or empty.");
                 if (UploadChunkSize <= 0) throw new ArgumentOutOfRangeException("UploadChunkSize must be greater than 0.");
             }
         }
