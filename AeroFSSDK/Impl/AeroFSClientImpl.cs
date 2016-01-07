@@ -373,6 +373,36 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<User>(req);
         }
 
+        public User CreateUser(string email, string firstName, string lastName)
+        {
+            var req = NewRequest("users");
+            req.Method = "POST";
+            WriteRequestBodyJson(req, new { email = email, first_name = firstName, last_name = lastName });
+            return ReadResponseBodyToEnd<User>(req);
+        }
+
+        public User UpdateUser(string email, string firstName, string lastName)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "PUT";
+
+            //TODO: fix this in safe way for multiple fields, if necessary
+            if (firstName != null && lastName != null)
+            {
+                WriteRequestBodyJson(req, new { first_name = firstName, last_name = lastName });
+            }
+            else if (firstName == null)
+            {
+                WriteRequestBodyJson(req, new { last_name = lastName });
+            }
+            else if (lastName == null)
+            {
+                WriteRequestBodyJson(req, new { first_name = firstName });
+            }
+
+            return ReadResponseBodyToEnd<User>(req);
+        }
+
         private HttpWebRequest NewRequest(string path)
         {
             var req = (HttpWebRequest)WebRequest.Create("{0}/{1}".FormatWith(EndPoint, path));

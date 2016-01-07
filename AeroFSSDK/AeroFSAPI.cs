@@ -235,6 +235,24 @@ namespace AeroFSSDK
         /// <param name="email">The email address of the inquired user.</param>
         /// <returns>The inquired user information.</returns>
         User GetUserInfo(string email);
+
+        /// <summary>
+        /// Create a new AeroFS user.
+        /// </summary>
+        /// <param name="email">The email address of the new user.</param>
+        /// <param name="firstName">The first name of the new user.</param>
+        /// <param name="lastName">The last name of the new user.</param>
+        /// <returns>The newly created User object.</returns>
+        User CreateUser(string email, string firstName, string lastName);
+
+        /// <summary>
+        /// Update an existing AeroFS user.
+        /// </summary>
+        /// <param name="email">The email address of the user to update.</param>
+        /// <param name="firstName">The updated first name of the user.</param>
+        /// <param name="lastName">The updated last name of the  user.</param>
+        /// <returns>The newly updated User object.</returns>
+        User UpdateUser(string email, string firstName = null, string lastName = null);
     }
 
     /// <summary>
