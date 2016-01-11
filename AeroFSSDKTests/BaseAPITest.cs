@@ -26,11 +26,13 @@ namespace AeroFSSDK.Tests
 
         private void SetupClient()
         {
-            Client = AeroFSClient.Create(new AeroFSClient.Configuration
+            string accessToken = (string)Settings.Default["AccessToken"];
+
+            Client = AeroFSClient.Create(accessToken, new AeroFSClient.Configuration
             {
-                // read these values from app.config
-                EndPoint = (string)Settings.Default["EndPoint"],
-                AccessToken = (string)Settings.Default["AccessToken"],
+                // read this value from app.config
+                HostName = (string)Settings.Default["HostName"],
+                APIVersion = (string)Settings.Default["APIVersion"]
             });
         }
 

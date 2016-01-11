@@ -84,6 +84,7 @@
     <Compile Include="TestUsers.cs" />
     <Compile Include="TestGetFilePath.cs" />
     <Compile Include="TestDownloadFile.cs" />
+    <Compile Include="TestOAuth.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -26,9 +26,9 @@ namespace AeroFSSDK.Tests.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string EndPoint {
+        public string HostName {
             get {
-                return ((string)(this["EndPoint"]));
+                return ((string)(this["HostName"]));
             }
         }
         
@@ -38,6 +38,15 @@ namespace AeroFSSDK.Tests.Properties {
         public string AccessToken {
             get {
                 return ((string)(this["AccessToken"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string APIVersion {
+            get {
+                return ((string)(this["APIVersion"]));
             }
         }
     }

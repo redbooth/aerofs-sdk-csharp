@@ -43,10 +43,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AeroFSAPI.cs" />
+    <Compile Include="AeroFSAuthAPI.cs" />
+    <Compile Include="AeroFSAuthClient.cs" />
     <Compile Include="AeroFSClient.cs" />
     <Compile Include="Children.cs" />
     <Compile Include="File.cs" />
     <Compile Include="Folder.cs" />
+    <Compile Include="Impl\AeroFSAuthClientImpl.cs" />
     <Compile Include="Impl\AeroFSClientImpl.cs" />
     <Compile Include="Impl\RemapPropertyNamesContractResolver.cs" />
     <Compile Include="Impl\DelegateContractResolver.cs" />
