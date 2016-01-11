@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using AeroFSSDK.Tests.Properties;
-
 namespace AeroFSSDK.Tests
 {
     [TestClass]
@@ -22,13 +20,11 @@ namespace AeroFSSDK.Tests
 
         private void SetupClient()
         {
-            string accessToken = (string)Settings.Default["AccessToken"];
-
             Client = AeroFSAuthClient.Create(new AeroFSClient.Configuration
             {
                 // read this value from app.config
-                HostName = (string)Settings.Default["HostName"],
-                APIVersion = (string)Settings.Default["APIVersion"]
+                HostName = Settings.HostName,
+                APIVersion = Settings.APIVersion
             }, new AeroFSAuthClient.AppCredentials
             {
                 ClientID = ClientID,
@@ -43,7 +39,7 @@ namespace AeroFSSDK.Tests
             OAuthScope scope = OAuthScope.OrganizationAdmin;
             var uri = Client.GenerateAuthorizationUrl(scope);
             var expect =
-                String.Format("{0}/authorize?response_type=code", (string)Settings.Default["HostName"]) +
+                String.Format("{0}/authorize?response_type=code", Settings.HostName) +
                 String.Format("&client_id={0}", ClientID) +
                 String.Format("&redirect_uri={0}", RedirectUri) +
                 String.Format("&scope={0}", "organization.admin");
@@ -59,7 +55,7 @@ namespace AeroFSSDK.Tests
             OAuthScope[] scopes = new OAuthScope[] { OAuthScope.FilesRead, OAuthScope.FilesWrite, OAuthScope.ACLInvitations, OAuthScope.UserPassword };
             var uri = Client.GenerateAuthorizationUrl(scopes);
             var expect =
-                String.Format("{0}/authorize?response_type=code", (string)Settings.Default["HostName"]) +
+                String.Format("{0}/authorize?response_type=code", Settings.HostName) +
                 String.Format("&client_id={0}", ClientID) +
                 String.Format("&redirect_uri={0}", RedirectUri) +
                 String.Format("&scope={0}", "files.read,files.write,acl.invitations,user.password");
