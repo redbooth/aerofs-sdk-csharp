@@ -16,6 +16,22 @@ namespace AeroFSSDK.Tests
     {
         protected AeroFSAPI Client { get; set; }
 
+        // Need to provide values here to configure tests
+        // The host name of the appliance against which you want to run tests
+        // NOTE: tests will wipe the AeroFS folder for the user against which tests are run
+        // e.g. "https://share.aerofs.com"
+        private string HostName = "https://share.syncfs.com";
+
+        // The target API version of the appliance, e.g. "1.4"
+        private string APIVersion = "1.4";
+
+        // A valid access token to run tests with
+        // Can be obtained through Settings menu > API Access Tokens in the Appliance
+        // Token should NOT have organization.admin scope (which is the case by default)
+        // If tests are failing with a 503 HTTP status, check if this is the case
+        // e.g. "9dk4955c0407459d97b2c833ce08dbe3"
+        private string AccessToken = "9cf4955c0407459d97b2c833ce08dbe3";
+
         [TestInitialize]
         public void SetupTestBase()
         {
@@ -26,13 +42,10 @@ namespace AeroFSSDK.Tests
 
         private void SetupClient()
         {
-            string accessToken = (string)Settings.Default["AccessToken"];
-
-            Client = AeroFSClient.Create(accessToken, new AeroFSClient.Configuration
+            Client = AeroFSClient.Create(AccessToken, new AeroFSClient.Configuration
             {
-                // read this value from app.config
-                HostName = (string)Settings.Default["HostName"],
-                APIVersion = (string)Settings.Default["APIVersion"]
+                HostName = HostName,
+                APIVersion = APIVersion
             });
         }
 
