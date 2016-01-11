@@ -19,7 +19,7 @@ namespace AeroFSSDK
         /// <summary>
         /// Generates URL to proceed with authorization flow.
         /// </summary>
-        /// <param name="scopes">List of requested OAuth scopes.</param>
+        /// <param name="scopes">A single requested OAuthScope.</param>
         string GenerateAuthorizationUrl(OAuthScope scope);
 
         /// <summary>
