@@ -377,6 +377,7 @@ namespace AeroFSSDK.Impl
         {
             var req = NewRequest("users");
             req.Method = "POST";
+            req.ContentType = "application/json";
             WriteRequestBodyJson(req, new { email = email, first_name = firstName, last_name = lastName });
             return ReadResponseBodyToEnd<User>(req);
         }
@@ -385,21 +386,13 @@ namespace AeroFSSDK.Impl
         {
             var req = NewRequest("users/{0}".FormatWith(email));
             req.Method = "PUT";
+            req.ContentType = "application/json";
 
-            //TODO: fix this in safe way for multiple fields, if necessary
-            if (firstName != null && lastName != null)
-            {
-                WriteRequestBodyJson(req, new { first_name = firstName, last_name = lastName });
-            }
-            else if (firstName == null)
-            {
-                WriteRequestBodyJson(req, new { last_name = lastName });
-            }
-            else if (lastName == null)
-            {
-                WriteRequestBodyJson(req, new { first_name = firstName });
-            }
+            var body = new Dictionary<string, object>();
+            if (!firstName.IsNullOrEmpty()) { body["first_name"] = firstName; }
+            if (!lastName.IsNullOrEmpty()) { body["last_name"] = lastName; }
 
+            WriteRequestBodyJson(req, body);
             return ReadResponseBodyToEnd<User>(req);
         }
 
