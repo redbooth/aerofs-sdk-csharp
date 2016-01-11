@@ -4,7 +4,7 @@ using System.Linq;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestGetFilePath : BaseAPITest
+    public class TestGetFilePath : BaseFileTest
     {
         [TestMethod]
         public void ShouldReturnFilePath()

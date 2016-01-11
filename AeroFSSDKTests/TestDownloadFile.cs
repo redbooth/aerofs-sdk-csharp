@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestDownloadFile : BaseAPITest
+    public class TestDownloadFile : BaseFileTest
     {
         [TestMethod]
         public void ShouldDownloadFile()

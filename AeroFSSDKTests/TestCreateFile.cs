@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestCreateFile : BaseAPITest
+    public class TestCreateFile : BaseFileTest
     {
         [TestMethod]
         public void ShouldCreateFileWithNoContents()

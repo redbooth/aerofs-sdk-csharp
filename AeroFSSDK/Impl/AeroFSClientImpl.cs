@@ -396,6 +396,18 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<User>(req);
         }
 
+        public IList<User> ListUsers()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteUser(string email)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
         private HttpWebRequest NewRequest(string path)
         {
             var req = (HttpWebRequest)WebRequest.Create("{0}/{1}".FormatWith(EndPoint, path));

@@ -253,6 +253,17 @@ namespace AeroFSSDK
         /// <param name="lastName">The updated last name of the  user.</param>
         /// <returns>The newly updated User object.</returns>
         User UpdateUser(string email, string firstName = null, string lastName = null);
+
+        /// <summary>
+        /// Retrieve a list of users registered with the AeroFS appliance.
+        /// </summary>
+        /// <returns>A List object containing all users registered with the AeroFS appliance.</returns>
+        IList<User> ListUsers();
+
+        /// <summary>
+        /// Delete a user from the AeroFS appliance.
+        /// </summary>
+        void DeleteUser(string email);
     }
 
     /// <summary>

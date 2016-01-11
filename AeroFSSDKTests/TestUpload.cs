@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestUpload : BaseAPITest
+    public class TestUpload : BaseFileTest
     {
         [TestMethod]
         public void ShouldUploadFileWithContents()
