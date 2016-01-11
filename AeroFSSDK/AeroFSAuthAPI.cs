@@ -14,14 +14,14 @@ namespace AeroFSSDK
         /// Generates URL to proceed with authorization flow.
         /// </summary>
         /// <param name="scopes">List of requested OAuth scopes.</param>
-        /// /// <returns>A URL to which the end user can be redirected to start the OAuth flow.</returns>
+        /// <returns>A URL to which the end user can be redirected to start the OAuth flow.</returns>
         string GenerateAuthorizationUrl(OAuthScope[] scopes);
 
         /// <summary>
         /// Generates URL to proceed with authorization flow.
         /// </summary>
         /// <param name="scope">A single requested OAuthScope.</param>
-        /// /// <returns>A URL to which the end user can be redirected to start the OAuth flow.</returns>
+        /// <returns>A URL to which the end user can be redirected to start the OAuth flow.</returns>
         string GenerateAuthorizationUrl(OAuthScope scope);
 
         /// <summary>
