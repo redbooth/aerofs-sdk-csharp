@@ -33,6 +33,13 @@ namespace AeroFSSDK
         File GetFile(FileID fileID, GetFileFields fields = GetFileFields.None);
 
         /// <summary>
+        /// Retrieve the path to a file of interest
+        /// </summary>
+        /// <param name="fileID">The ID of the file of interest</param>
+        /// <returns>A List of Folder objects representing the path to the file of interest.</returns>
+        ParentPath GetFilePath(FileID fileID);
+
+        /// <summary>
         /// List the files and folders under the top-level root folder.
         /// </summary>
         /// <returns>A Children object containing a list of files and folders.</returns>
@@ -97,6 +104,13 @@ namespace AeroFSSDK
         /// <param name="content">The stream containing the content to be uploaded.</param>
         /// <returns>A new UploadProgress indicating the latest progress of this upload sequence.</returns>
         UploadProgress UploadContent(FileID fileID, UploadProgress progress, Stream content);
+
+        /// <summary>
+        /// Download a file.
+        /// </summary>
+        /// <param name="fileID">The ID of the file to be downloaded.</param>
+        /// <returns>A Stream object containing the file's data.</returns>
+        Stream DownloadFile(FileID fileID);
 
         /// <summary>
         /// Finish a upload sequence indicating the completion of the sequence.
@@ -221,6 +235,64 @@ namespace AeroFSSDK
         /// <param name="email">The email address of the inquired user.</param>
         /// <returns>The inquired user information.</returns>
         User GetUserInfo(string email);
+
+        /// <summary>
+        /// Create a new AeroFS user.
+        /// </summary>
+        /// <param name="email">The email address of the new user.</param>
+        /// <param name="firstName">The first name of the new user.</param>
+        /// <param name="lastName">The last name of the new user.</param>
+        /// <returns>The newly created User object.</returns>
+        User CreateUser(string email, string firstName, string lastName);
+
+        /// <summary>
+        /// Update an existing AeroFS user.
+        /// </summary>
+        /// <param name="email">The email address of the user to update.</param>
+        /// <param name="firstName">The updated first name of the user.</param>
+        /// <param name="lastName">The updated last name of the  user.</param>
+        /// <returns>The newly updated User object.</returns>
+        User UpdateUser(string email, string firstName = null, string lastName = null);
+
+        /// <summary>
+        /// Retrieve a list of users registered with the AeroFS appliance.
+        /// </summary>
+        /// <param name="limit">The maximum number of users to return.</param>
+        /// <param name="after">Cursor used for pagination: page will begin after this user index.</param>
+        /// <param name="before">Cursor used for pagination: page will end before this user index.</param>
+        /// <returns>A List containing all users registered with the AeroFS appliance.</returns>
+        UserPage ListUsers(int limit = 20, int after = -1, int before = -1);
+
+        /// <summary>
+        /// Delete a user from the AeroFS appliance.
+        /// </summary>
+        void DeleteUser(string email);
+
+        /// <summary>
+        /// Change a user's AeroFS password, if it is locally managed.
+        /// </summary>
+        /// <param name="email">The email address of the user whose password should be changed.</param>
+        /// <param name="password">The new password.</param>
+        void ChangeUserPassword(string email, string password);
+
+        /// <summary>
+        /// Disable a user's AeroFS password until manual reset, if it is locally managed.
+        /// </summary>
+        /// <param name="email">The email address of the user whose password should be disabled.</param>
+        void DisableUserPassword(string email);
+
+        /// <summary>
+        /// Check if a user has two-factor authentication enabled.
+        /// </summary>
+        /// <param name="email">The email of the user.</param>
+        /// <returns>A bool value indicating whether or not the user has two-factor auth. enabled.</returns>
+        bool CheckUserTwoFactorAuthEnabled(string email);
+
+        /// <summary>
+        /// Disable two-factor authentication for a user.
+        /// </summary>
+        /// <param name="email">The email of the user.</param>
+        void DisableUserTwoFactorAuth(string email);
     }
 
     /// <summary>

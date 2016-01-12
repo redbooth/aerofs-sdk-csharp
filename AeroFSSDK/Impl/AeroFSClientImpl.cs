@@ -84,6 +84,14 @@ namespace AeroFSSDK.Impl
                                 { "LastName", "last_name" },
                             }
                         } },
+                        { typeof(UserPage), new RemapPropertyNamesContractResolver
+                        {
+                            PropertyMapping = new Dictionary<string, string>
+                            {
+                                { "HasMore", "has_more" },
+                                { "Users", "data" }
+                            }
+                        } },
                     },
                 },
             };
@@ -135,6 +143,13 @@ namespace AeroFSSDK.Impl
             req.GetResponse().Close();
         }
 
+        public Stream DownloadFile(FileID fileID)
+        {
+            var req = NewRequest("files/{0}/content".FormatWith(fileID.Base));
+            req.Method = "GET";
+            return req.GetResponse().GetResponseStream();
+        }
+
         public string FinishUpload(FileID fileID, UploadProgress progress)
         {
             var req = NewRequest("files/{0}/content".FormatWith(fileID.Base));
@@ -154,6 +169,13 @@ namespace AeroFSSDK.Impl
             var req = NewRequest("files/{0}{1}".FormatWith(fileID.Base, queryFields));
             req.Method = "GET";
             return ReadResponseBodyToEnd<File>(req);
+        }
+
+        public ParentPath GetFilePath(FileID fileID)
+        {
+            var req = NewRequest("files/{0}/path".FormatWith(fileID.Base));
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<ParentPath>(req);
         }
 
         public Folder GetFolder(FolderID folderID, GetFolderFields fields)
@@ -359,6 +381,78 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<User>(req);
         }
 
+        public User CreateUser(string email, string firstName, string lastName)
+        {
+            var req = NewRequest("users");
+            req.Method = "POST";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, new { email = email, first_name = firstName, last_name = lastName });
+            return ReadResponseBodyToEnd<User>(req);
+        }
+
+        public User UpdateUser(string email, string firstName, string lastName)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+
+            var body = new Dictionary<string, object>();
+            if (!firstName.IsNullOrEmpty()) { body["first_name"] = firstName; }
+            if (!lastName.IsNullOrEmpty()) { body["last_name"] = lastName; }
+
+            WriteRequestBodyJson(req, body);
+            return ReadResponseBodyToEnd<User>(req);
+        }
+
+        public UserPage ListUsers(int limit = 20, int after = -1, int before = -1)
+        {
+            var uri = "users?limit={0}".FormatWith(limit);
+
+            uri += (after == -1) ? "" : "&after={0}".FormatWith(after);
+            uri += (before == -1) ? "" : "&before={0}".FormatWith(before);
+
+            var req = NewRequest(uri);
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<UserPage>(req);
+        }
+
+        public void DeleteUser(string email)
+        {
+            var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public void ChangeUserPassword(string email, string password)
+        {
+            var req = NewRequest("users/{0}/password".FormatWith(email));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, password);
+            req.GetResponse().Close();
+        }
+
+        public void DisableUserPassword(string email)
+        {
+            var req = NewRequest("users/{0}/password".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public bool CheckUserTwoFactorAuthEnabled(string email)
+        {
+            var req = NewRequest("users/{0}/two_factor".FormatWith(email));
+            req.Method = "GET";
+            return ReadAnonymousObjectFromResponseBody(req, new { enforced = false }).enforced;
+        }
+
+        public void DisableUserTwoFactorAuth(string email)
+        {
+            var req = NewRequest("users/{0}/two_factor".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
         private HttpWebRequest NewRequest(string path)
         {
             var req = (HttpWebRequest)WebRequest.Create("{0}/{1}".FormatWith(EndPoint, path));
@@ -381,6 +475,17 @@ namespace AeroFSSDK.Impl
                 using (var reader = new StreamReader(resp.GetResponseStream()))
                 {
                     return JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), SerializerSettings);
+                }
+            }
+        }
+
+        private T ReadAnonymousObjectFromResponseBody<T>(HttpWebRequest req, T anonymousTypeObject)
+        {
+            using (var resp = req.GetResponse())
+            {
+                using (var reader = new StreamReader(resp.GetResponseStream()))
+                {
+                    return JsonConvert.DeserializeAnonymousType(reader.ReadToEnd(), anonymousTypeObject);
                 }
             }
         }
