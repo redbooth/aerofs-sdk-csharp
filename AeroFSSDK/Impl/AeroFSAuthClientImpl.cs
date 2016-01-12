@@ -67,7 +67,7 @@ namespace AeroFSSDK.Impl
             var bytes = System.Text.Encoding.ASCII.GetBytes(data);
             req.ContentLength = bytes.Length;
             var os = req.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length); //Push it out there
+            os.Write(bytes, 0, bytes.Length);
             os.Close();
 
 
@@ -79,6 +79,14 @@ namespace AeroFSSDK.Impl
                     return JsonConvert.DeserializeAnonymousType(reader.ReadToEnd(), anonType).access_token;
                 }
             }
+        }
+
+        public void RevokeAccessToken(string accessToken)
+        {
+            var uri = "{0}/auth/token/{1}".FormatWith(HostName, accessToken);
+            var req = (HttpWebRequest)WebRequest.Create(uri);
+            req.Method = "DELETE";
+            req.GetResponse().Close();
         }
     }
 }

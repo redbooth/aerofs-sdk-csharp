@@ -65,12 +65,24 @@ namespace AeroFSSDK.Tests
             Console.WriteLine(uri); 
         }
 
+
+        // These can be used for manual tests, but cannot yet be tested "automatically"
         [TestMethod]
         public void ShouldReturnValidAccessToken()
         {
             // Insert authorization code here
-            string code = "f826b1b8231749cfa24fb8a2188c26fa";
+            string code = "";
             //Console.WriteLine(Client.ExchangeAuthorizationCodeForAccessToken(code));
+        }
+
+        // OAuth requires user interaction, so just revoking the provided token is annoying
+        // Use if you wish
+        [TestMethod]
+        public void ShouldRevokeAccessToken()
+        {
+            // Insert token to revoke
+            string token = "";
+            // Client.RevokeAccessToken(token);
         }
     }
 }

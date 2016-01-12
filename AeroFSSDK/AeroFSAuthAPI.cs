@@ -30,6 +30,11 @@ namespace AeroFSSDK
         /// <returns>The new access token, which can be used for AeroFSClient.Create()</returns>
         string ExchangeAuthorizationCodeForAccessToken(string code);
 
+        /// <summary>
+        /// Revokes an access token so that it can no longer be used to make requests on the user's behalf.
+        /// </summary>
+        /// <param name="accessToken">The access token to be revoked.</param>
+        void RevokeAccessToken(string accessToken);
     }
 
     public enum OAuthScope
