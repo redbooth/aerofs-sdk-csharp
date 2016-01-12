@@ -257,13 +257,42 @@ namespace AeroFSSDK
         /// <summary>
         /// Retrieve a list of users registered with the AeroFS appliance.
         /// </summary>
-        /// <returns>A List object containing all users registered with the AeroFS appliance.</returns>
-        IList<User> ListUsers();
+        /// <param name="limit">The maximum number of users to return.</param>
+        /// <param name="after">Cursor used for pagination: page will begin after this user index.</param>
+        /// <param name="before">Cursor used for pagination: page will end before this user index.</param>
+        /// <returns>A List containing all users registered with the AeroFS appliance.</returns>
+        UserPage ListUsers(int limit = 20, int after = -1, int before = -1);
 
         /// <summary>
         /// Delete a user from the AeroFS appliance.
         /// </summary>
         void DeleteUser(string email);
+
+        /// <summary>
+        /// Change a user's AeroFS password, if it is locally managed.
+        /// </summary>
+        /// <param name="email">The email address of the user whose password should be changed.</param>
+        /// <param name="password">The new password.</param>
+        void ChangeUserPassword(string email, string password);
+
+        /// <summary>
+        /// Disable a user's AeroFS password until manual reset, if it is locally managed.
+        /// </summary>
+        /// <param name="email">The email address of the user whose password should be disabled.</param>
+        void DisableUserPassword(string email);
+
+        /// <summary>
+        /// Check if a user has two-factor authentication enabled.
+        /// </summary>
+        /// <param name="email">The email of the user.</param>
+        /// <returns>A bool value indicating whether or not the user has two-factor auth. enabled.</returns>
+        bool CheckUserTwoFactorAuthEnabled(string email);
+
+        /// <summary>
+        /// Disable two-factor authentication for a user.
+        /// </summary>
+        /// <param name="email">The email of the user.</param>
+        void DisableUserTwoFactorAuth(string email);
     }
 
     /// <summary>

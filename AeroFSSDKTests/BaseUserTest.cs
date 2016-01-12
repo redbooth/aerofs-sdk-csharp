@@ -14,7 +14,7 @@ namespace AeroFSSDK.Tests
         [TestInitialize]
         public void CleanUpTestUsers()
         {
-            var users = OrgAdminClient.ListUsers();
+            var users = OrgAdminClient.GetAllUsers();
 
             foreach (var user in users)
             {
@@ -23,6 +23,25 @@ namespace AeroFSSDK.Tests
                     OrgAdminClient.DeleteUser(user.Email);
                 }
             }
+        }
+    }
+
+    static class ClientExtensions
+    {
+        public static IList<User> GetAllUsers(this AeroFSAPI client)
+        {
+            var userPage = client.ListUsers();
+            var users = userPage.Users;
+            while (userPage.HasMore)
+            {
+                userPage = client.ListUsers();
+                foreach (var user in userPage.Users)
+                {
+                    users.Add(user);
+                }
+            }
+
+            return users;
         }
     }
 }

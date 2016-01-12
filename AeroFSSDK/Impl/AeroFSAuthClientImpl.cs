@@ -66,10 +66,10 @@ namespace AeroFSSDK.Impl
 
             var bytes = System.Text.Encoding.ASCII.GetBytes(data);
             req.ContentLength = bytes.Length;
-            var os = req.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length);
-            os.Close();
-
+            using (var os = req.GetRequestStream())
+            {
+                os.Write(bytes, 0, bytes.Length);
+            }
 
             using (var resp = req.GetResponse())
             {

@@ -84,6 +84,14 @@ namespace AeroFSSDK.Impl
                                 { "LastName", "last_name" },
                             }
                         } },
+                        { typeof(UserPage), new RemapPropertyNamesContractResolver
+                        {
+                            PropertyMapping = new Dictionary<string, string>
+                            {
+                                { "HasMore", "has_more" },
+                                { "Users", "data" }
+                            }
+                        } },
                     },
                 },
             };
@@ -167,7 +175,7 @@ namespace AeroFSSDK.Impl
         {
             var req = NewRequest("files/{0}/path".FormatWith(fileID.Base));
             req.Method = "GET";
-            return ParseFoldersFromResponse(req);
+            return ReadResponseBodyToEnd<ParentPath>(req);
         }
 
         public Folder GetFolder(FolderID folderID, GetFolderFields fields)
@@ -396,14 +404,51 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<User>(req);
         }
 
-        public IList<User> ListUsers()
+        public UserPage ListUsers(int limit = 20, int after = -1, int before = -1)
         {
-            throw new NotImplementedException();
+            var uri = "users?limit={0}".FormatWith(limit);
+
+            uri += (after == -1) ? "" : "&after={0}".FormatWith(after);
+            uri += (before == -1) ? "" : "&before={0}".FormatWith(before);
+
+            var req = NewRequest(uri);
+            req.Method = "GET";
+            return ReadResponseBodyToEnd<UserPage>(req);
         }
 
         public void DeleteUser(string email)
         {
             var req = NewRequest("users/{0}".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public void ChangeUserPassword(string email, string password)
+        {
+            var req = NewRequest("users/{0}/password".FormatWith(email));
+            req.Method = "PUT";
+            req.ContentType = "application/json";
+            WriteRequestBodyJson(req, password);
+            req.GetResponse().Close();
+        }
+
+        public void DisableUserPassword(string email)
+        {
+            var req = NewRequest("users/{0}/password".FormatWith(email));
+            req.Method = "DELETE";
+            req.GetResponse().Close();
+        }
+
+        public bool CheckUserTwoFactorAuthEnabled(string email)
+        {
+            var req = NewRequest("users/{0}/two_factor".FormatWith(email));
+            req.Method = "GET";
+            return ReadAnonymousObjectFromResponseBody(req, new { enforced = false }).enforced;
+        }
+
+        public void DisableUserTwoFactorAuth(string email)
+        {
+            var req = NewRequest("users/{0}/two_factor".FormatWith(email));
             req.Method = "DELETE";
             req.GetResponse().Close();
         }
@@ -434,6 +479,17 @@ namespace AeroFSSDK.Impl
             }
         }
 
+        private T ReadAnonymousObjectFromResponseBody<T>(HttpWebRequest req, T anonymousTypeObject)
+        {
+            using (var resp = req.GetResponse())
+            {
+                using (var reader = new StreamReader(resp.GetResponseStream()))
+                {
+                    return JsonConvert.DeserializeAnonymousType(reader.ReadToEnd(), anonymousTypeObject);
+                }
+            }
+        }
+
         private UploadProgress ReadUploadProgressFromResponse(HttpWebRequest req)
         {
             using (var resp = (HttpWebResponse)req.GetResponse())
@@ -452,17 +508,6 @@ namespace AeroFSSDK.Impl
             if (!resp.Headers.AllKeys.Contains("Range")) return 0;
             string range = resp.Headers["Range"];
             return long.Parse(range.Substring(range.IndexOf('-') + 1).Trim()) + 1;
-        }
-
-        private ParentPath ParseFoldersFromResponse(HttpWebRequest req)
-        {
-            using (var resp = (HttpWebResponse)req.GetResponse())
-            {
-                using (var reader = new StreamReader(resp.GetResponseStream()))
-                {
-                    return JsonConvert.DeserializeObject<ParentPath>(reader.ReadToEnd(), SerializerSettings);
-                }
-            }
         }
     }
 }

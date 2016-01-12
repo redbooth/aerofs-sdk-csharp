@@ -43,7 +43,7 @@ namespace AeroFSSDK.Tests
                 String.Format("&client_id={0}", ClientID) +
                 String.Format("&redirect_uri={0}", RedirectUri) +
                 String.Format("&scope={0}", "organization.admin");
-            Assert.AreEqual(uri, expect);
+            Assert.AreEqual(expect, uri);
 
             // Can use this to manually test OAuth flow
             Console.WriteLine(uri);
@@ -59,7 +59,7 @@ namespace AeroFSSDK.Tests
                 String.Format("&client_id={0}", ClientID) +
                 String.Format("&redirect_uri={0}", RedirectUri) +
                 String.Format("&scope={0}", "files.read,files.write,acl.invitations,user.password");
-            Assert.AreEqual(uri, expect);
+            Assert.AreEqual(expect, uri);
 
             // Can use this to manually test OAuth flow
             Console.WriteLine(uri); 
