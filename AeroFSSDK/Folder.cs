@@ -12,7 +12,7 @@ namespace AeroFSSDK
     /// Both Path and Children are on-demand fields and may be missing in some
     /// responses. In which case, these fields will be null.
     /// </remarks>
-    public class Folder
+    public class Folder : WithETag
     {
         public FolderID ID { get; set; }
         public string Name { get; set; }
@@ -22,5 +22,6 @@ namespace AeroFSSDK
         public ShareID ShareID { get; set; }
         public ParentPath Path { get; set; }
         public Children Children { get; set; }
+        public string ETag { get; set; }
     }
 }

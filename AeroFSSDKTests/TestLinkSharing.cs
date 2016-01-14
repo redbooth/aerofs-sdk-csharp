@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestLinkSharing : BaseAPITest
+    public class TestLinkSharing : BaseLinkTest
     {
         private FileID FileID { get; set; }
         private ShareID ShareID { get; set; }

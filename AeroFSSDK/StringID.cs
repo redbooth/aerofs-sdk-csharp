@@ -43,9 +43,12 @@ namespace AeroFSSDK
     public class FolderID : ObjectID
     {
         public static FolderID Root { get; } = new FolderID { Base = "root" };
+        public static FolderID AppData { get; } = new FolderID { Base = "appdata" };
     }
 
     public class ShareID : StringID { }
     public class UploadID : StringID { }
     public class LinkID : StringID { }
+    public class SharedFolderID : StringID { }
+    public class SFGroupMemberID : StringID { }
 }

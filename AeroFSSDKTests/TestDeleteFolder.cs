@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestDeleteFolder : BaseAPITest
+    public class TestDeleteFolder : BaseFileTest
     {
         [TestMethod]
         public void ShouldDeleteFolder()

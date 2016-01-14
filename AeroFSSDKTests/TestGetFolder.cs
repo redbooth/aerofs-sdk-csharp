@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AeroFSSDK.Tests
 {
     [TestClass]
-    public class TestGetFolder : BaseAPITest
+    public class TestGetFolder : BaseFileTest
     {
         [TestMethod]
         public void ShouldReturnFolder()
