@@ -21,7 +21,7 @@ This directory contains 3 projects:
 - This will produce a dll with debug symbols located in `AeroFSSDK/bin/Debug/AeroFSSDK.dll`.
 
 ### Release Build
-- Download [nuget.exe](http://http://www.nuget.org/nuget.exe) and place it in `AeroFSSDK/.nuget`.
+- Download [nuget.exe](http://www.nuget.org/nuget.exe) and place it in `AeroFSSDK/.nuget`.
 - Go to top menu -> Build -> Configuration Manager... and set Active Solution Configuration to
   Release.
 - Go to top menu -> Build -> Build Solution.

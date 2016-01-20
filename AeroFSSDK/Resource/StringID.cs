@@ -48,7 +48,6 @@ namespace AeroFSSDK
 
     public class ShareID : StringID { }
     public class UploadID : StringID { }
-    public class LinkID : StringID { }
     public class GroupID : StringID { }
     public class DeviceID : StringID { }
 }

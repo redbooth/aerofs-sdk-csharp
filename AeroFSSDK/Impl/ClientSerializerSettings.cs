@@ -19,7 +19,6 @@ namespace AeroFSSDK.Impl
                     new StringIDReader<FolderID>(),
                     new StringIDReader<ShareID>(),
                     new StringIDReader<UploadID>(),
-                    new StringIDReader<LinkID>(),
                     new StringIDReader<GroupID>()
                 },
                 ContractResolver = new DelegateContractResolver
@@ -108,19 +107,6 @@ namespace AeroFSSDK.Impl
                                 { "EmailTo", "email_to" },
                                 { "EmailFrom", "email_from" },
                                 { "SignUpCode", "signup_code" }
-                            }
-                        } },
-                        { typeof(Link), new RemapPropertyNamesContractResolver
-                        {
-                            PropertyMapping = new Dictionary<string, string>
-                            {
-                                { "Key", "key" },
-                                { "ObjectID", "soid" },
-                                { "Token", "token" },
-                                { "CreatedBy", "created_by" },
-                                { "RequireLogin", "require_login" },
-                                { "HasPassword", "has_password" },
-                                { "Expires", "expires" },
                             }
                         } },
                         { typeof(SFGroupMember), new RemapPropertyNamesContractResolver

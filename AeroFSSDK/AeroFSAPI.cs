@@ -171,11 +171,11 @@ namespace AeroFSSDK
         /// <summary>
         /// Retrieve a list of users registered with the AeroFS appliance.
         /// </summary>
-        /// <param name="limit">Optional: The maximum number of users to return. (default = 20)</param>
+        /// <param name="limit">Optional: The maximum number of users to return.</param>
         /// <param name="after">Optional: Cursor (user email) used for pagination: page will begin after this user.</param>
         /// <param name="before">Optional: Cursor (user email) used for pagination: page will end before this user.</param>
         /// <returns>A List containing all users registered with the AeroFS appliance.</returns>
-        UserPage ListUsers(int limit = 20, string after = null, string before = null);
+        UserPage ListUsers(int? limit = null, string after = null, string before = null);
 
         /// <summary>
         /// Delete a user from the AeroFS appliance.
@@ -391,7 +391,7 @@ namespace AeroFSSDK
         /// <param name="sharedFolderID">The ID of the shared folder.</param>
         /// <param name="external">A bool value indicating whether or not to join the folder as external.</param>
         /// <returns>A SharedFolder object.</returns>
-        SharedFolder AcceptInvitation(string email, ShareID sharedFolderID, bool external = false);
+        SharedFolder AcceptInvitation(string email, ShareID sharedFolderID, bool? external = null);
 
         /// <summary>
         /// Ignore a pending shared folder invitation for a given user.
@@ -403,10 +403,10 @@ namespace AeroFSSDK
         /// <summary>
         /// List AeroFS groups.
         /// </summary>
-        /// <param name="offset">Offset for the start of the returned list (default = 0).</param>
-        /// <param name="numResults">Number of results in the returned list (default = 10, max = 1000).</param>
+        /// <param name="offset">Offset for the start of the returned list.</param>
+        /// <param name="numResults">Number of results in the returned list.</param>
         /// <returns>A list of Group objects.</returns>
-        GroupList ListGroups(int offset = 0, int numResults = 10);
+        GroupList ListGroups(int? offset = null, int? numResults = null);
 
         /// <summary>
         /// Create a new AeroFS group.
