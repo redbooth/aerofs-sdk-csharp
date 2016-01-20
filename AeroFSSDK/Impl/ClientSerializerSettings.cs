@@ -110,19 +110,6 @@ namespace AeroFSSDK.Impl
                                 { "SignUpCode", "signup_code" }
                             }
                         } },
-                        { typeof(Link), new RemapPropertyNamesContractResolver
-                        {
-                            PropertyMapping = new Dictionary<string, string>
-                            {
-                                { "Key", "key" },
-                                { "ObjectID", "soid" },
-                                { "Token", "token" },
-                                { "CreatedBy", "created_by" },
-                                { "RequireLogin", "require_login" },
-                                { "HasPassword", "has_password" },
-                                { "Expires", "expires" },
-                            }
-                        } },
                         { typeof(SFGroupMember), new RemapPropertyNamesContractResolver
                         {
                             PropertyMapping = new Dictionary<string, string>

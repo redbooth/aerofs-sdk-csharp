@@ -273,12 +273,29 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<User>(req);
         }
 
-        public UserPage ListUsers(int limit = 20, string after = null, string before = null)
+        public UserPage ListUsers(int? limit = null, string after = null, string before = null)
         {
-            var uri = "users?limit={0}".FormatWith(limit);
+            var uri = "users";
+            var queryParams = new List<string>();
 
-            uri += (after == null) ? "" : "&after={0}".FormatWith(after);
-            uri += (before == null) ? "" : "&before={0}".FormatWith(before);
+            if (limit.HasValue)
+            {
+                queryParams.Add("limit={0}".FormatWith(limit.Value));
+            }
+            if (after != null)
+            {
+                queryParams.Add("after={0}".FormatWith(after));
+            }
+            if (before != null)
+            {
+                queryParams.Add("before={0}".FormatWith(before));
+            }
+
+            var queryString = String.Join("&", queryParams.ToArray());
+            if (!queryString.IsNullOrEmpty())
+            {
+                uri += "?" + queryString;
+            }
 
             var req = NewRequest(uri);
             req.Method = "GET";
@@ -566,12 +583,23 @@ namespace AeroFSSDK.Impl
             return ReadResponseBodyToEnd<Invitation>(req);
         }
 
-        public SharedFolder AcceptInvitation(string email, ShareID sharedFolderID, bool external = false)
+        public SharedFolder AcceptInvitation(string email, ShareID sharedFolderID, bool? external = null)
         {
             // Nicer for the end user to work with true/false, but API takes 0, 1
-            int externalVal = external ? 1 : 0;
+            int externalVal = -1;
+            if (external.HasValue)
+            {
+                externalVal = external.Value ? 1 : 0;
+            }
 
-            var req = NewRequest("user/{0}/invitations/{1}?external={2}".FormatWith(email, sharedFolderID, externalVal));
+            var uri = "users/{0}/invitations/{1}".FormatWith(email, sharedFolderID);
+
+            if (externalVal != -1)
+            {
+                uri += "?external={0}".FormatWith(externalVal);
+            }
+
+            var req = NewRequest(uri);
             req.Method = "POST";
 
             string etag;
@@ -587,9 +615,27 @@ namespace AeroFSSDK.Impl
             req.GetResponse().Close();
         }
 
-        public GroupList ListGroups(int offset = 0, int numResults = 10)
+        public GroupList ListGroups(int? offset = null, int? numResults = null)
         {
-            var req = NewRequest("groups?offset={0}&results={1}".FormatWith(offset, numResults));
+            var uri = "groups";
+
+            var queryParams = new List<string>();
+            if (offset.HasValue)
+            {
+                queryParams.Add("offset={0}".FormatWith(offset.Value));
+            }
+            if (numResults.HasValue)
+            {
+                queryParams.Add("results={0}".FormatWith(numResults.Value));
+            }
+
+            var queryString = String.Join("&", queryParams.ToArray());
+            if (!queryString.IsNullOrEmpty())
+            {
+                uri += "?" + queryString;
+            }
+
+            var req = NewRequest(uri);
             req.Method = "GET";
 
             var ret = new GroupList();
@@ -673,7 +719,7 @@ namespace AeroFSSDK.Impl
         public Device UpdateDevice(DeviceID deviceID, string name)
         {
             var req = NewRequest("devices/{0}".FormatWith(deviceID));
-            req.Method = "POST";
+            req.Method = "PUT";
             req.ContentType = "application/json";
             WriteRequestBodyJson(req, new { name = name });
             return ReadResponseBodyToEnd<Device>(req);
